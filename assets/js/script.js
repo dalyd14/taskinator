@@ -1,4 +1,4 @@
-var formEl = document.querySelector("#task-form");
+var formEl = document.getElementById("task-form");
 var tasksToDoEl = document.querySelector("#tasks-to-do");
 
 var taskFormHandler = function (event) {
@@ -7,6 +7,15 @@ var taskFormHandler = function (event) {
 
     var taskNameInput = document.querySelector("input[name='task-name']").value;
     var taskTypeInput = document.querySelector("select[name='task-type']").value;
+
+    // validate that the form is filled out
+    if (!taskNameInput || !taskTypeInput) {
+        alert("You need to fill out the task form!");
+        return false;
+    }
+    // reset form
+    formEl.reset()
+    
 
     // package data as object
     var taskDataObj = {
