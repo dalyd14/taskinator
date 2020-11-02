@@ -36,11 +36,11 @@ var taskFormHandler = function (event) {
             type: taskTypeInput,
             status: "to do"
         };
-        createTaskEl(taskDataObj, false, 0)
+        createTaskEl(taskDataObj, 0)
     }
 };
 
-var createTaskEl = function (taskDataObj, pageLoad, statusIndex) {
+var createTaskEl = function (taskDataObj, statusIndex) {
     // create list item
     var listItemEl = document.createElement("li");
     listItemEl.className = "task-item";
@@ -74,15 +74,12 @@ var createTaskEl = function (taskDataObj, pageLoad, statusIndex) {
             break;
     }
     
-
-    if (!pageLoad) {
-        // Adding ID to task object
-        taskDataObj.id = taskIdCounter
-        tasks.push(taskDataObj)
-    }
+    // Adding ID to task object
+    taskDataObj.id = taskIdCounter
+    tasks.push(taskDataObj)
 
     saveTasks();
-    
+
     taskIdCounter++;
 }
 var completeEditTask = function(taskName, taskType, taskId) {
@@ -286,19 +283,25 @@ var loadTasks = function() {
     // retrieve from localStorage
     // convert to an object
     // populate lists
-    tasks = JSON.parse(localStorage.getItem("tasks"))
-    for (var i=0; i < tasks.length; i++) {
+    savedTasks = localStorage.getItem("tasks")
+    if (!savedTasks) {
+        return false
+    };
+    
+    savedTasks = JSON.parse(savedTasks);
+
+    for (var i=0; i < savedTasks.length; i++) {
         tasks[i].id = taskIdCounter;
         // this switch will assign the loadedTaskListEl variable the necessary ul bucket on the page
         switch (tasks[i].status.toLowerCase()) {
             case "to do":
-                createTaskEl(tasks[i], true, 0)
+                createTaskEl(savedTasks[i], 0);
                 break;
             case "in progress":
-                createTaskEl(tasks[i], true, 1)
+                createTaskEl(savedTasks[i], 1);
                 break;
             case "completed":
-                createTaskEl(tasks[i], true, 2)
+                createTaskEl(savedTasks[i], 2);
                 break;
             default:
                 console.log("error!")
