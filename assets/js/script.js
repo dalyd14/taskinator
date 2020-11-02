@@ -100,7 +100,6 @@ var completeEditTask = function(taskName, taskType, taskId) {
     }
     saveTasks();
 
-    alert("Task Updated");
     formEl.removeAttribute("data-task-Id");
     document.querySelector("#save-task").textContent = "Add Task";
 }
@@ -291,9 +290,9 @@ var loadTasks = function() {
     savedTasks = JSON.parse(savedTasks);
 
     for (var i=0; i < savedTasks.length; i++) {
-        tasks[i].id = taskIdCounter;
+        savedTasks[i].id = taskIdCounter;
         // this switch will assign the loadedTaskListEl variable the necessary ul bucket on the page
-        switch (tasks[i].status.toLowerCase()) {
+        switch (savedTasks[i].status.toLowerCase()) {
             case "to do":
                 createTaskEl(savedTasks[i], 0);
                 break;
@@ -308,13 +307,14 @@ var loadTasks = function() {
         }
         // Locate and change the status for the loaded tasks
         // this finds the task and then finds the select dropdown
-        var loadedTaskEl = document.querySelector("[data-task-id='" + tasks[i].id + "']")
+        var loadedTaskEl = document.querySelector("[data-task-id='" + savedTasks[i].id + "']")
         var statusSelectEl = loadedTaskEl.querySelector("select[name='status-change']")
         // this changes the status
-        changeStatus(statusSelectEl, tasks[i].status)
+        changeStatus(statusSelectEl, savedTasks[i].status)
     }
 }
 
+loadTasks();
 formEl.addEventListener("submit", taskFormHandler);
 pageContentEl.addEventListener("click", taskButtonHandler);
 pageContentEl.addEventListener("change", taskStatusChangeHandler);
