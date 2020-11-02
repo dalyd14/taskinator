@@ -36,11 +36,11 @@ var taskFormHandler = function (event) {
             type: taskTypeInput,
             status: "to do"
         };
-        createTaskEl(taskDataObj)
+        createTaskEl(taskDataObj, false, 0)
     }
 };
 
-var createTaskEl = function (taskDataObj) {
+var createTaskEl = function (taskDataObj, pageLoad, statusIndex) {
     // create list item
     var listItemEl = document.createElement("li");
     listItemEl.className = "task-item";
@@ -61,14 +61,28 @@ var createTaskEl = function (taskDataObj) {
     // add entire list item to list
     var taskActionsEl = createTaskActions(taskIdCounter);
     listItemEl.appendChild(taskActionsEl)
-    tasksToDoEl.appendChild(listItemEl);
 
-    // Adding ID to task object
-    taskDataObj.id = taskIdCounter
-    tasks.push(taskDataObj)
+    switch(statusIndex) {
+        case 0:
+            tasksToDoEl.appendChild(listItemEl);
+            break;
+        case 1:
+            tasksInProgressEl.appendChild(listItemEl);
+            break;
+        case 2:
+            tasksCompletedEl.appendChild(listItemEl);
+            break;
+    }
+    
+
+    if (!pageLoad) {
+        // Adding ID to task object
+        taskDataObj.id = taskIdCounter
+        tasks.push(taskDataObj)
+    }
 
     saveTasks();
-
+    
     taskIdCounter++;
 }
 var completeEditTask = function(taskName, taskType, taskId) {
@@ -227,24 +241,15 @@ var dragLeaveHandler = function(event) {
 }
 var dropTaskHandler = function(event) {
     var id = event.dataTransfer.getData("text/plain")
-    var draggableElement = document.querySelector("[data-task-id='" + id + "']")
     
     var dropZoneEl = event.target.closest(".task-list");
-    var statusType = dropZoneEl.id
+    var statusType = dropZoneEl.id;
     
+    var draggableElement = document.querySelector("[data-task-id='" + id + "']")
     var statusSelectEl = draggableElement.querySelector("select[name='status-change']")
+    
+    changeStatus(statusSelectEl, statusType);
 
-    switch (statusType.toLowerCase()) {
-        case "tasks-to-do":
-            statusSelectEl.selectedIndex = 0;
-            break;
-        case "tasks-in-progress":
-            statusSelectEl.selectedIndex = 1;
-            break;
-        case "tasks-completed":
-            statusSelectEl.selectedIndex = 2;
-            break;
-    }
     dropZoneEl.removeAttribute("style")
     dropZoneEl.appendChild(draggableElement)
 
@@ -258,8 +263,53 @@ var dropTaskHandler = function(event) {
 
     saveTasks();
 }
+var changeStatus = function(statusSelectEl, statusType) {
+    switch (statusType.toLowerCase()) {
+        case "tasks-to-do":
+        case "to do":
+            statusSelectEl.selectedIndex = 0;
+            break;
+        case "tasks-in-progress":
+        case "in progress":
+            statusSelectEl.selectedIndex = 1;
+            break;
+        case "tasks-completed":
+        case "completed":
+            statusSelectEl.selectedIndex = 2;
+            break;
+    }
+}
 var saveTasks = function() {
     localStorage.setItem("tasks", JSON.stringify(tasks))
+}
+var loadTasks = function() {
+    // retrieve from localStorage
+    // convert to an object
+    // populate lists
+    tasks = JSON.parse(localStorage.getItem("tasks"))
+    for (var i=0; i < tasks.length; i++) {
+        tasks[i].id = taskIdCounter;
+        // this switch will assign the loadedTaskListEl variable the necessary ul bucket on the page
+        switch (tasks[i].status.toLowerCase()) {
+            case "to do":
+                createTaskEl(tasks[i], true, 0)
+                break;
+            case "in progress":
+                createTaskEl(tasks[i], true, 1)
+                break;
+            case "completed":
+                createTaskEl(tasks[i], true, 2)
+                break;
+            default:
+                console.log("error!")
+        }
+        // Locate and change the status for the loaded tasks
+        // this finds the task and then finds the select dropdown
+        var loadedTaskEl = document.querySelector("[data-task-id='" + tasks[i].id + "']")
+        var statusSelectEl = loadedTaskEl.querySelector("select[name='status-change']")
+        // this changes the status
+        changeStatus(statusSelectEl, tasks[i].status)
+    }
 }
 
 formEl.addEventListener("submit", taskFormHandler);
