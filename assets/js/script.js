@@ -7,7 +7,26 @@ var tasksToDoEl = document.querySelector("#tasks-to-do");
 var tasksInProgressEl = document.querySelector("#tasks-in-progress");
 var tasksCompletedEl = document.querySelector("#tasks-completed");
 
+var taskTypesArray = [
+    "Chore",
+    "Work", 
+    "Errand", 
+    "Fun"
+]
+
 var tasks = [];
+
+var createTaskTypeoptions = function () {
+    var taskTypeSelect = document.querySelector("select[name='task-type'")
+
+    for (var i = 0; i < taskTypesArray.length; i++) {
+        var taskTypeOption = document.createElement("option");
+        taskTypeOption.setAttribute("value",taskTypesArray[i]);
+        taskTypeOption.textContent = taskTypesArray[i];
+        taskTypeSelect.appendChild(taskTypeOption);
+    }
+
+}
 
 var taskFormHandler = function (event) {
 
@@ -315,6 +334,7 @@ var loadTasks = function() {
 }
 
 loadTasks();
+createTaskTypeoptions();
 formEl.addEventListener("submit", taskFormHandler);
 pageContentEl.addEventListener("click", taskButtonHandler);
 pageContentEl.addEventListener("change", taskStatusChangeHandler);
